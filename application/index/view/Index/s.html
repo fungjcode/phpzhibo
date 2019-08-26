@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{$roomname} - 会直播</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    {include file="index/header" /}
+    <div class="container" style="padding-top: 60px;">
+        <div class="alert alert-success" role="alert">共有 <b>{$alldb}</b> 位主播</div>
+        <div class="alert alert-warning alert-dismissible" role="alert" style="margin-top: -5px;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Warning!</strong> 部分直播可能无法直接播放，请复制直播连接URL到视频播放软件中(暴风影音等)进行打开观看即可。
+        </div>
+    </div>
+    <div class="container" style="padding-top: 30px;">
+        <div class="row" style="padding-bottom: 50px;">
+            {volist name='list' id='user'}
+            <div class="col-sm-6 col-md-3">
+                <div class="thumbnail">
+                    <img src="{$user.poster}">
+                    <div class="caption">
+                        <h3>{$user.name}</h3>
+                        {eq name="$user['live_time']" value="正在直播"}
+                        <p>
+                            <form action="{:url('i')}" method="post" target="_blank">
+                                <input type="hidden" name="name" value="{$user.name}" />
+                                <input type="hidden" name="url" value="{$user.url}" />
+                                <button type="submit" class="btn btn-primary" role="button">点击看直播</button>
+                            </form>
+                        </p>
+                        {else/}
+                        <p>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#myModal-{$user.name}">
+                                无法解析直播
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal-{$user.name}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="myModalLabel">使用播放器播放直播</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>
+                                                <div class="alert alert-warning" role="alert">无法解析该直播地址，请将下面的连接复制到您的视频播放软件中，打开即可正常播放：</div>
+                                            </p>
+                                            <p>
+                                                <div class="alert alert-info" role="alert">{$user.url}</div>
+                                            </p>
+                                            <p>
+                                                <img src="/public/static/s.gif" class="img-responsive" alt="Responsive image">
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </p>
+                        {/eq}
+                    </div>
+                </div>
+            </div>
+            {/volist}
+        </div>
+    </div>
+    {include file="index/footer" /}
+</body>
+
+</html>
