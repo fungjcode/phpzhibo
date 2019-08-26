@@ -1,7 +1,9 @@
 # 环境准备
 
 PHP 7+
+
 MYSQL 5.5+
+
 NGINX 1.7+ 或 阿帕奇 需要伪静态Thinkphp
 
 # 安装恢复
@@ -9,7 +11,9 @@ NGINX 1.7+ 或 阿帕奇 需要伪静态Thinkphp
 ## 1、恢复MYSQL
 
 1、数据库文件在DB文件夹下avi.sql，Mysql新建数据库avi，并恢复数据库文件。
+
 2、application目录下，修改database.php配置文件
+
 >	// 服务器地址
 	'hostname' => '127.0.0.1',
 	// 数据库名
@@ -26,6 +30,7 @@ NGINX 1.7+ 或 阿帕奇 需要伪静态Thinkphp
 ## 2、修改配置
 
 1、修改根目录下runtime文件夹为777权限，Windows服务器忽略。
+
 2、打开你的网址进行访问，over
 
 # END
