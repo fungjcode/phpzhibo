@@ -24,8 +24,10 @@
     <div class="container" style="padding-top: 30px;">
         {volist name='list' id='user'}
         <div class="col-xs-6 col-md-3" style="padding-bottom: 15px;font-size: 14px;"><span type="button" class="btn btn-default" aria-label="Left Align">
-                <a class="glyphicon glyphicon-star" style="text-decoration:none;" target="_blank" href="s/id/{$user.id}.html"> {$user.name}</a>
-            </span></div>
+                <a class="glyphicon glyphicon-star" style="text-decoration:none;" target="_blank" href="s/id/{$user.id}.html"> {$user.title}</a>
+            </span>
+            <p><small><em>在线主播：{$user.Number} 人</em></small></p>
+        </div>
         {/volist}
     </div>
     <div class="container">
@@ -35,6 +37,7 @@
             </ul>
         </nav>
     </div>
+    <br />
     {include file="index/footer" /}
 </body>
 

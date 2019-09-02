@@ -28,16 +28,19 @@
     <div class="container" style="padding-top: 60px;">
         <div class="alert alert-warning alert-dismissible" role="alert" style="margin-top: -5px;">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <strong>Warning!</strong> 记得点击“全屏”观看
+            <p><strong>Warning!</strong> 记得点击“全屏”观看</p>
+            <p><strong>Warning!</strong> 部分直播格式在手机中可能显示不全，请在电脑上使用</p>
+            <p><strong>Warning!</strong> 无法播放的直播，可能是主播不在线了，请稍后尝试</p>
         </div>
     </div>
+    {eq name="rid" value="1"}
     <div class="container" style="padding-top: 10px;padding-bottom: 100px;">
         <link rel="stylesheet" href="__PUBLIC__static/DPlayer.min.css">
         <div id="dplayer" style="width: 50%; height: 50%;" class="center-block"></div>
         <script src="__PUBLIC__static/flv.min.js"></script>
         <script src="__PUBLIC__static/DPlayer.min.js"></script>
         <script>
-        const dp = new DPlayer({
+            const dp = new DPlayer({
             container: document.getElementById('dplayer'),
             live: 'true',
             autoplay: 'true',
@@ -49,6 +52,18 @@
         });
         </script>
     </div>
+    {else/}
+    <link href="http://vjs.zencdn.net/5.20.1/video-js.css" rel="stylesheet">
+    <script src="http://vjs.zencdn.net/5.20.1/videojs-ie8.min.js"></script>
+    <div class="container" style="padding-top: 10px;padding-bottom: 100px;">
+        <video id="video_1" class="video-js vjs-default-skin" controls preload="auto" autoplay="autoplay" width="980" height="680" poster="http://vjs.zencdn.net/v/oceans.png" data-setup="{}">
+            <!-- <source src="1.mp4" type="video/mp4"> -->
+            <source src="{$url}" type="rtmp/flv">
+            <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+        </video>
+        <script src="http://vjs.zencdn.net/5.20.1/video.js"></script>
+    </div>
+    {/eq}
     {include file="index/footer" /}
 </body>
 

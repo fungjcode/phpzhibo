@@ -15,27 +15,12 @@ class Api extends Controller {
 		return $this->fetch('404');
 	}
 
-	//API接口主页
-	public function api_Index() {
-		$url = 'http://zbzbzb.xyz/api/introduce';
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36');
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-		curl_setopt($ch, CURLOPT_TIMEOUT, 360);
-		$result = curl_exec($ch);
-		curl_close($ch);
-		$arrinfo = json_decode($result, true);
-		var_dump($arrinfo);
-	}
-
 	//API导航
 	public function api_Navigation() {
 		//检查导航缓存
 		$ceinfo = Cache::get('apiNavigation_info');
 		if (empty($ceinfo)) {
-			$url = 'http://zbzbzb.xyz/api/nav';
+			$url = 'http://api.hclyz.com:81/mf/json.txt';
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -45,15 +30,17 @@ class Api extends Controller {
 			$result = curl_exec($ch);
 			curl_close($ch);
 			$arrinfo = json_decode($result, true);
-			if ($arrinfo['plats']) {
+			if ($arrinfo['pingtai']) {
 				//设置缓存
-				$ceinfo = $arrinfo['plats'];
-				Cache::set('apiNavigation_info', $ceinfo, 7200);
+				$ceinfo = $arrinfo['pingtai'];
+				Cache::set('apiNavigation_info', $ceinfo, 1200);
 				$this->api_List($ceinfo);
+
 			} else {
 				return json(['code' => '0', 'data' => ['msg' => 'error']]);
 				\think\Log::record('获取列表数据失败，接口返回：' . $info, 'api-apiNavigation');
 			}
+
 		} else {
 			$this->api_List($ceinfo);
 		}
@@ -63,28 +50,78 @@ class Api extends Controller {
 	public function api_List($ceinfo) {
 		//删除数据
 		Db::query("TRUNCATE TABLE `avi_roomlist`");
-		//$einfo = Cache::get('apiroom_info');
 		if (!empty($ceinfo)) {
-			//遍历数据
-			foreach ($ceinfo as $key => $value) {
-				$name = $value['name'];
-				$path = $value['path'];
-				$allinfo = [
-					'name' => $name,
-					'path' => $path,
-					'time' => time(),
-				];
-				//写入数据
-				$db = Db::name('roomlist')->insert($allinfo);
+			$allinfo = $ceinfo;
+			//写入数据
+			$db = Db::name('roomlist')->insertAll($allinfo);
+			if ($db) {
+				return true;
+			} else {
+				return json(['code' => '0', 'data' => ['msg' => 'error']]);
 			}
 		} else {
 			return json(['code' => '0', 'data' => ['msg' => 'error']]);
 		}
 	}
 
-	//平台主播列表
-	public function api_RoomList($roomurl, $roomname) {
-		$caname = $roomname . "_RoomList_info";
+/*
+//平台主播列表
+public function api_RoomList($roomurl, $roomname) {
+$caname = $roomname . "_RoomList_info";
+$arrinfoa = Cache::get($caname);
+if (empty($arrinfoa)) {
+$url = $roomurl;
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36');
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_TIMEOUT, 360);
+$result = curl_exec($ch);
+var_dump($url);
+curl_close($ch);
+$arrinfo = json_decode($result, true);
+foreach ($arrinfo['rooms'] as $key => $value) {
+if (isset($value['url'])) {
+$usrstr = strripos($value['url'], 'flv?');
+if ($usrstr == false) {
+$live_time = $value['live_time'];
+} else {
+$live_time = '主播下班了';
+}
+$allarr[] = [
+
+'live_time' => $live_time,
+'name' => $value['name'],
+'poster' => $value['poster'],
+'rid' => $value['rid'],
+'url' => $value['url'],
+];
+
+} else {
+continue;
+}
+}
+$array = [
+'rooms' => $allarr,
+'total' => $arrinfo['total'],
+];
+if ($arrinfo) {
+//设置缓存
+Cache::set($caname, $array, 3200);
+return $array;
+} else {
+return false;
+}
+
+} else {
+return $arrinfoa;
+}
+}
+ */
+//平台主播列表
+	public function api_RoomList($roomurl, $roomid) {
+		$caname = $roomid . "_RoomList_info";
 		$arrinfoa = Cache::get($caname);
 		if (empty($arrinfoa)) {
 			$url = $roomurl;
@@ -97,39 +134,36 @@ class Api extends Controller {
 			$result = curl_exec($ch);
 			curl_close($ch);
 			$arrinfo = json_decode($result, true);
-			foreach ($arrinfo['rooms'] as $key => $value) {
-				if (isset($value['url'])) {
-					$usrstr = strripos($value['url'], 'flv?');
-					if ($usrstr == false) {
-						$live_time = $value['live_time'];
+			if ($arrinfo) {
+				foreach ($arrinfo['zhubo'] as $key => $value) {
+					//判断播放URL属性
+					$rida = strstr($value['address'], 'rtmp');
+					if ($rida == false) {
+						$rid = '1'; //HTTP
 					} else {
-						$live_time = '主播下班了';
+						$rid = '0'; //rtmp
+					}
+					$usrstr = strripos($value['address'], 'flv?');
+					if ($usrstr == false) {
+						$live_time = '1'; //正常地址
+					} else {
+						$live_time = '0'; //授权地址
 					}
 					$allarr[] = [
-
+						'address' => $value['address'],
+						'img' => $value['img'],
+						'title' => $value['title'],
+						'rid' => $rid,
 						'live_time' => $live_time,
-						'name' => $value['name'],
-						'poster' => $value['poster'],
-						'rid' => $value['rid'],
-						'url' => $value['url'],
 					];
-
-				} else {
-					continue;
 				}
-			}
-			$array = [
-				'rooms' => $allarr,
-				'total' => $arrinfo['total'],
-			];
-			if ($arrinfo) {
+				$array = $allarr;
 				//设置缓存
-				Cache::set($caname, $array, 3200);
+				Cache::set($caname, $array, 1200);
 				return $array;
 			} else {
 				return false;
 			}
-
 		} else {
 			return $arrinfoa;
 		}

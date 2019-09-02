@@ -144,7 +144,7 @@ return [
 
 	// 视图输出字符串内容替换
 	'view_replace_str' => [
-		'__PUBLIC__' => '/public/', //正式系统后，去掉/avi
+		'__PUBLIC__' => '/avi/public/', //正式系统后，去掉/avi
 	],
 	// 默认跳转页面对应的模板文件
 	'dispatch_success_tmpl' => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',

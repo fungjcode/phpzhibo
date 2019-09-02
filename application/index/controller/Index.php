@@ -42,14 +42,17 @@ class Index extends Controller {
 			$db = Db::name('roomlist')->where('id', $id['id'])->find();
 			if ($db) {
 				//传递数据给接口
-				$roomurl = 'http://zbzbzb.xyz/api/room?plat=' . $db['path'];
-				$roomname = $db['name'];
+				$roomurl = 'http://api.hclyz.com:81/mf/' . $db['address'];
+				$roomid = $db['id'];
+				$roomname = $db['title'];
 				$event = controller('index/Api', 'controller');
-				$info = $event->api_RoomList($roomurl, $roomname);
+				$info = $event->api_RoomList($roomurl, $roomid);
 				if ($info != false) {
+					//主播数
+					$alldb = count($info);
 					// 渲染模板输出
-					$this->assign('list', $info['rooms']);
-					$this->assign('alldb', $info['total']);
+					$this->assign('list', $info);
+					$this->assign('alldb', $alldb);
 					$this->assign('roomname', $roomname);
 					return $this->fetch();
 				} else {
@@ -68,8 +71,10 @@ class Index extends Controller {
 	public function i() {
 		$name = input('post.name');
 		$url = input('post.url');
+		$rid = input('post.rid');
 		if (!empty($name) and !empty($url)) {
 			header('Access-Control-Allow-Origin:*');
+			$this->assign('rid', $rid);
 			$this->assign('url', $url);
 			$this->assign('roomname', $name);
 			return $this->fetch();
